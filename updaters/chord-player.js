@@ -4,7 +4,7 @@ import { timeNeededForEnvelopeDecay } from '../consts';
 export function ChordPlayer({ ctx, sampleBuffer }) {
   return { play };
 
-  function play({ rates, delays, currentTickLengthSeconds }) {
+  function play({ rates, delays, currentTickLengthSeconds, grainLengths, tickIndex }) {
     var samplerChains = rates.map(rateToSamplerChain);
     samplerChains.forEach(
       connectLastToDest
@@ -19,22 +19,24 @@ export function ChordPlayer({ ctx, sampleBuffer }) {
       const endTime = startTime + currentTickLengthSeconds;
       sampler.play({ startTime, endTime });
     }
-  }
 
-  function rateToSamplerChain(rate, i, rates) {
-    var sampler = new Sampler(
-      ctx,
-      {      
-        sampleBuffer,
-        playbackRate: rate,
-        loop: true,
-        timeNeededForEnvelopeDecay 
-      }
-    );
-    const maxGain = 0.8/Math.pow(rates.length, 3);
-    var envelope = new Envelope(ctx, { envelopeMaxGain: maxGain });
-    sampler.connect({ synthNode: envelope });
-    return [sampler, envelope];
+    function rateToSamplerChain(rate, i, rates) {
+      var sampler = new Sampler(
+        ctx,
+        {      
+          sampleBuffer,
+          playbackRate: rate,
+          loop: true,
+          loopStart: 0,
+          loopEnd: grainLengths[tickIndex],
+          timeNeededForEnvelopeDecay 
+        }
+      );
+      const maxGain = 0.8/Math.pow(rates.length, 3);
+      var envelope = new Envelope(ctx, { envelopeMaxGain: maxGain });
+      sampler.connect({ synthNode: envelope });
+      return [sampler, envelope];
+    }
   }
 
   //function detuneToSamplerChain(detune, i, detunes) {

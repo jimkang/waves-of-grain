@@ -21,7 +21,7 @@ function wireControls({
   select('#start-button').attr('disabled', null);
   on('#start-button', 'click', onStartClick);
   on('#undo-density-button', 'click', onUndoDensityClick);
-  on('#undo-tempo-button', 'click', onUndoTempoClick);
+  on('#undo-length-button', 'click', onUndoTempoClick);
   on('#piece-length-field', 'change', onPieceLengthFieldChange);
   on('#tick-length-field', 'change', onTickLengthFieldChange);
 

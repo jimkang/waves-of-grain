@@ -17,6 +17,9 @@ import { tonalityDiamondPitches } from './tonality-diamond';
 import { defaultTotalTicks, defaultSecondsPerTick, maxTickLength } from './consts';
 import { Undoer } from './updaters/undoer';
 
+const minGrainLength = 0.001;
+const maxGrainLength = 1.0;
+
 var randomId = RandomId();
 var routeState;
 var { getCurrentContext } = ContextKeeper();
@@ -27,8 +30,8 @@ var chordPlayer;
 
 var renderDensityCanvas = RenderTimeControlGraph({ canvasId: 'density-canvas' });
 var densityUndoer = Undoer({ onUpdateValue: callRenderDensityCanvas, storageKey: 'densityOverTimeArray' });
-var renderTempoCanvas = RenderTimeControlGraph({ canvasId: 'tempo-canvas', lineColor: 'hsl(10, 60%, 40%)' });
-var tempoUndoer = Undoer({ onUpdateValue: callRenderTempoCanvas, storageKey: 'tempoOverTimeArray' });
+var renderLengthCanvas = RenderTimeControlGraph({ canvasId: 'length-canvas', lineColor: 'hsl(10, 60%, 40%)' });
+var lengthUndoer = Undoer({ onUpdateValue: callRenderLengthCanvas, storageKey: 'lengthOverTimeArray' });
 
 function callRenderDensityCanvas(newValue, undoer) {
   renderDensityCanvas({
@@ -38,10 +41,11 @@ function callRenderDensityCanvas(newValue, undoer) {
   });
 }
 
-function callRenderTempoCanvas(newValue, undoer) {
-  renderTempoCanvas({
+function callRenderLengthCanvas(newValue, undoer) {
+  renderLengthCanvas({
     valueOverTimeArray: newValue,
-    valueMax: maxTickLength,
+    valueMin: minGrainLength,
+    valueMax: maxGrainLength,
     onChange: undoer.onChange
   });
 }
@@ -63,7 +67,6 @@ async function followRoute({ seed, totalTicks = defaultTotalTicks, secondsPerTic
     return;
   }
 
-  // TODO: This whole context getting thing is too unwieldy.
   var { error, values } = await ep(getCurrentContext);
   if (error) {
     handleError(error);
@@ -96,10 +99,11 @@ async function followRoute({ seed, totalTicks = defaultTotalTicks, secondsPerTic
     valueMax: tonalityDiamondPitches.length,
     onChange: densityUndoer.onChange
   });
-  renderTempoCanvas({
-    valueOverTimeArray: tempoUndoer.getCurrentValue(),
-    valueMax: maxTickLength, 
-    onChange: tempoUndoer.onChange
+  renderLengthCanvas({
+    valueOverTimeArray: lengthUndoer.getCurrentValue(),
+    valueMin: minGrainLength,
+    valueMax: maxGrainLength, 
+    onChange: lengthUndoer.onChange
   });
 
   // TODO: Test non-locally.
@@ -109,7 +113,7 @@ async function followRoute({ seed, totalTicks = defaultTotalTicks, secondsPerTic
     wireControls({
       onStart,
       onUndoDensity: densityUndoer.onUndo,
-      onUndoTempo: tempoUndoer.onUndo,
+      onUndoTempo: lengthUndoer.onUndo,
       onPieceLengthChange,
       onTickLengthChange,
       totalTicks,
@@ -119,7 +123,7 @@ async function followRoute({ seed, totalTicks = defaultTotalTicks, secondsPerTic
 
   function onTick({ ticks, currentTickLengthSeconds }) {
     console.log(ticks, currentTickLengthSeconds); 
-    chordPlayer.play(Object.assign({ currentTickLengthSeconds }, getChord({ ticks, probable: prob, densityOverTimeArray: densityUndoer.getCurrentValue(), totalTicks })));
+    chordPlayer.play(Object.assign({ currentTickLengthSeconds, grainLengths: lengthUndoer.getCurrentValue(), tickIndex: ticks }, getChord({ ticks, probable: prob, densityOverTimeArray: densityUndoer.getCurrentValue(),  totalTicks })));
   }
 
   function onPieceLengthChange(length) {
@@ -130,9 +134,8 @@ async function followRoute({ seed, totalTicks = defaultTotalTicks, secondsPerTic
     routeState.addToRoute({ secondsPerTick: length });
   }
 
-  function getTickLength(tickNumber) {
-    var lengths = tempoUndoer.getCurrentValue();
-    return lengths[Math.floor(tickNumber/totalTicks * lengths.length)];
+  function getTickLength() {
+    return secondsPerTick;
   }
 }
 

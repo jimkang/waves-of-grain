@@ -1,6 +1,6 @@
 # waves-of-grain
 
-Blends some audio in a really literal way.
+Crude granular synthesis.
 
 ## Getting it running
 
