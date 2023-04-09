@@ -45,6 +45,7 @@ async function followRoute({
   maxGrainLength = 1.0,
   minGrainOffset = 0.0,
   maxGrainOffset = 1.0,
+  sampleIndex = 2,
 }) {
   if (!seed) {
     routeState.addToRoute({ seed: randomId(8) });
@@ -127,7 +128,13 @@ async function followRoute({
   });
 
   sampleDownloader = SampleDownloader({
-    sampleFiles: ['bagpipe-c.wav', 'flute-G4-edit.wav', 'trumpet-D2.wav'],
+    sampleFiles: [
+      'bagpipe-c.wav',
+      'flute-G4-edit.wav',
+      'trumpet-D2.wav',
+      'gtr-e.wav',
+      '398701__inspectorj__water-swirl-small-10.wav',
+    ],
     localMode: true,
     onComplete,
     handleError,
@@ -162,7 +169,7 @@ async function followRoute({
   // TODO: Test non-locally.
   function onComplete({ buffers }) {
     console.log(buffers);
-    chordPlayer = ChordPlayer({ ctx, sampleBuffer: buffers[2] });
+    chordPlayer = ChordPlayer({ ctx, sampleBuffer: buffers[sampleIndex] });
     wireControls({
       onStart,
       onUndoDensity: densityUndoer.onUndo,
