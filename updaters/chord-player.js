@@ -14,10 +14,8 @@ export function ChordPlayer({ ctx, sampleBuffer }) {
     samplerChains.forEach((chain, i) => playSampler(chain[0], delays[i]));
 
     function playSampler(sampler, delay) {
-      // TODO: This should be connected to the tick length.
       const startTime = ctx.currentTime + delay;
-      const endTime = startTime + currentTickLengthSeconds;
-      sampler.play({ startTime, endTime });
+      sampler.play({ startTime, duration: currentTickLengthSeconds });
     }
 
     function rateToSamplerChain(rate, i, rates) {

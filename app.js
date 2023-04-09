@@ -62,6 +62,8 @@ function callRenderLengthCanvas(newValue, undoer) {
 })();
 
 async function followRoute({ seed, totalTicks = defaultTotalTicks, secondsPerTick = defaultSecondsPerTick }) {
+  secondsPerTick = +secondsPerTick;
+
   if (!seed) {
     routeState.addToRoute({ seed: randomId(8) });
     return;

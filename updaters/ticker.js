@@ -53,7 +53,7 @@ export function Ticker({
   function tick() {
     // Don't update tick length anywhere else.
     if (getTickLength) {
-      currentTickLengthSeconds = getTickLength(ticks);
+      currentTickLengthSeconds = +getTickLength(ticks);
     }
     onTick({ ticks, currentTickLengthSeconds });
     ticks += 1;

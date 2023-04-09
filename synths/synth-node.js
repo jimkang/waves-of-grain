@@ -205,9 +205,8 @@ export class Sampler extends SynthNode {
       }
     }
   }
-  play({ startTime }) {
-    this.node.start(startTime);
-    //this.node.stop(endTime + this.params.timeNeededForEnvelopeDecay);
+  play({ startTime, duration }) {
+    this.node.start(startTime, 0, duration);
   }
 }
 
