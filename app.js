@@ -16,11 +16,7 @@ import { RenderTimeControlGraph } from './renderers/render-time-control-graph';
 import { tonalityDiamondPitches } from './tonality-diamond';
 import { defaultTotalTicks, defaultSecondsPerTick } from './consts';
 import { Undoer } from './updaters/undoer';
-
-const minGrainLength = 0.1;
-const maxGrainLength = 1.0;
-const minGrainOffset = 0.0;
-const maxGrainOffset = 1.0;
+import { select } from 'd3-selection';
 
 var randomId = RandomId();
 var routeState;
@@ -30,55 +26,6 @@ var sampleDownloader;
 var prob;
 var chordPlayer;
 
-var renderDensityCanvas = RenderTimeControlGraph({
-  canvasId: 'density-canvas',
-});
-var densityUndoer = Undoer({
-  onUpdateValue: callRenderDensityCanvas,
-  storageKey: 'densityOverTimeArray',
-});
-var renderLengthCanvas = RenderTimeControlGraph({
-  canvasId: 'length-canvas',
-  lineColor: 'hsl(10, 60%, 40%)',
-});
-var lengthUndoer = Undoer({
-  onUpdateValue: callRenderLengthCanvas,
-  storageKey: 'lengthOverTimeArray',
-});
-var renderOffsetCanvas = RenderTimeControlGraph({
-  canvasId: 'offset-canvas',
-  lineColor: 'hsl(240, 60%, 40%)',
-});
-var offsetUndoer = Undoer({
-  onUpdateValue: callRenderOffsetCanvas,
-  storageKey: 'offsetOverTimeArray',
-});
-
-function callRenderDensityCanvas(newValue, undoer) {
-  renderDensityCanvas({
-    valueOverTimeArray: newValue,
-    valueMax: tonalityDiamondPitches.length,
-    onChange: undoer.onChange,
-  });
-}
-
-function callRenderLengthCanvas(newValue, undoer) {
-  renderLengthCanvas({
-    valueOverTimeArray: newValue,
-    valueMin: minGrainLength,
-    valueMax: maxGrainLength,
-    onChange: undoer.onChange,
-  });
-}
-
-function callRenderOffsetCanvas(newValue, undoer) {
-  renderOffsetCanvas({
-    valueOverTimeArray: newValue,
-    valueMin: minGrainOffset,
-    valueMax: maxGrainOffset,
-    onChange: undoer.onChange,
-  });
-}
 (async function go() {
   window.onerror = reportTopLevelError;
   renderVersion();
@@ -94,12 +41,70 @@ async function followRoute({
   seed,
   totalTicks = defaultTotalTicks,
   secondsPerTick = defaultSecondsPerTick,
+  minGrainLength = 0.1,
+  maxGrainLength = 1.0,
+  minGrainOffset = 0.0,
+  maxGrainOffset = 1.0,
 }) {
-  secondsPerTick = +secondsPerTick;
-
   if (!seed) {
     routeState.addToRoute({ seed: randomId(8) });
     return;
+  }
+
+  secondsPerTick = +secondsPerTick;
+  minGrainLength = +minGrainLength;
+  maxGrainLength = +maxGrainLength;
+  minGrainOffset = +minGrainOffset;
+  maxGrainOffset = +maxGrainOffset;
+
+  var renderDensityCanvas = RenderTimeControlGraph({
+    canvasId: 'density-canvas',
+  });
+  var densityUndoer = Undoer({
+    onUpdateValue: callRenderDensityCanvas,
+    storageKey: 'densityOverTimeArray',
+  });
+  var renderLengthCanvas = RenderTimeControlGraph({
+    canvasId: 'length-canvas',
+    lineColor: 'hsl(10, 60%, 40%)',
+  });
+  var lengthUndoer = Undoer({
+    onUpdateValue: callRenderLengthCanvas,
+    storageKey: 'lengthOverTimeArray',
+  });
+  var renderOffsetCanvas = RenderTimeControlGraph({
+    canvasId: 'offset-canvas',
+    lineColor: 'hsl(240, 60%, 40%)',
+  });
+  var offsetUndoer = Undoer({
+    onUpdateValue: callRenderOffsetCanvas,
+    storageKey: 'offsetOverTimeArray',
+  });
+
+  function callRenderDensityCanvas(newValue, undoer) {
+    renderDensityCanvas({
+      valueOverTimeArray: newValue,
+      valueMax: tonalityDiamondPitches.length,
+      onChange: undoer.onChange,
+    });
+  }
+
+  function callRenderLengthCanvas(newValue, undoer) {
+    renderLengthCanvas({
+      valueOverTimeArray: newValue,
+      valueMin: minGrainLength,
+      valueMax: maxGrainLength,
+      onChange: undoer.onChange,
+    });
+  }
+
+  function callRenderOffsetCanvas(newValue, undoer) {
+    renderOffsetCanvas({
+      valueOverTimeArray: newValue,
+      valueMin: minGrainOffset,
+      valueMax: maxGrainOffset,
+      onChange: undoer.onChange,
+    });
   }
 
   var { error, values } = await ep(getCurrentContext);
@@ -146,6 +151,13 @@ async function followRoute({
     valueMax: maxGrainOffset,
     onChange: offsetUndoer.onChange,
   });
+
+  (function renderGraphRangeLabels() {
+    select('.min-length').text(minGrainLength);
+    select('.max-length').text(maxGrainLength);
+    select('.min-offset').text(minGrainOffset);
+    select('.max-offset').text(maxGrainOffset);
+  })();
 
   // TODO: Test non-locally.
   function onComplete({ buffers }) {
