@@ -19,6 +19,8 @@ import { Undoer } from './updaters/undoer';
 
 const minGrainLength = 0.1;
 const maxGrainLength = 1.0;
+const minGrainOffset = 0.0;
+const maxGrainOffset = 1.0;
 
 var randomId = RandomId();
 var routeState;
@@ -32,6 +34,8 @@ var renderDensityCanvas = RenderTimeControlGraph({ canvasId: 'density-canvas' })
 var densityUndoer = Undoer({ onUpdateValue: callRenderDensityCanvas, storageKey: 'densityOverTimeArray' });
 var renderLengthCanvas = RenderTimeControlGraph({ canvasId: 'length-canvas', lineColor: 'hsl(10, 60%, 40%)' });
 var lengthUndoer = Undoer({ onUpdateValue: callRenderLengthCanvas, storageKey: 'lengthOverTimeArray' });
+var renderOffsetCanvas = RenderTimeControlGraph({ canvasId: 'offset-canvas', lineColor: 'hsl(240, 60%, 40%)' });
+var offsetUndoer = Undoer({ onUpdateValue: callRenderOffsetCanvas, storageKey: 'offsetOverTimeArray' });
 
 function callRenderDensityCanvas(newValue, undoer) {
   renderDensityCanvas({
@@ -50,6 +54,14 @@ function callRenderLengthCanvas(newValue, undoer) {
   });
 }
 
+function callRenderOffsetCanvas(newValue, undoer) {
+  renderOffsetCanvas({
+    valueOverTimeArray: newValue,
+    valueMin: minGrainOffset,
+    valueMax: maxGrainOffset,
+    onChange: undoer.onChange
+  });
+}
 (async function go() {
   window.onerror = reportTopLevelError;
   renderVersion();
@@ -107,6 +119,12 @@ async function followRoute({ seed, totalTicks = defaultTotalTicks, secondsPerTic
     valueMax: maxGrainLength, 
     onChange: lengthUndoer.onChange
   });
+  renderOffsetCanvas({
+    valueOverTimeArray: offsetUndoer.getCurrentValue(),
+    valueMin: minGrainOffset,
+    valueMax: maxGrainOffset, 
+    onChange: offsetUndoer.onChange
+  });
 
   // TODO: Test non-locally.
   function onComplete({ buffers }) {
@@ -115,7 +133,8 @@ async function followRoute({ seed, totalTicks = defaultTotalTicks, secondsPerTic
     wireControls({
       onStart,
       onUndoDensity: densityUndoer.onUndo,
-      onUndoTempo: lengthUndoer.onUndo,
+      onUndoLength: lengthUndoer.onUndo,
+      onUndoOffset: offsetUndoer.onUndo,
       onPieceLengthChange,
       onTickLengthChange,
       totalTicks,
@@ -125,7 +144,7 @@ async function followRoute({ seed, totalTicks = defaultTotalTicks, secondsPerTic
 
   function onTick({ ticks, currentTickLengthSeconds }) {
     console.log(ticks, currentTickLengthSeconds); 
-    chordPlayer.play(Object.assign({ currentTickLengthSeconds, grainLengths: lengthUndoer.getCurrentValue(), tickIndex: ticks }, getChord({ ticks, probable: prob, densityOverTimeArray: densityUndoer.getCurrentValue(),  totalTicks })));
+    chordPlayer.play(Object.assign({ currentTickLengthSeconds, grainLengths: lengthUndoer.getCurrentValue(), grainOffsets: offsetUndoer.getCurrentValue(), tickIndex: ticks }, getChord({ ticks, probable: prob, densityOverTimeArray: densityUndoer.getCurrentValue(),  totalTicks })));
   }
 
   function onPieceLengthChange(length) {

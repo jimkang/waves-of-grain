@@ -205,8 +205,8 @@ export class Sampler extends SynthNode {
       }
     }
   }
-  play({ startTime, duration }) {
-    this.node.start(startTime, 0, duration);
+  play({ startTime, loopStart = 0, duration }) {
+    this.node.start(startTime, loopStart, duration);
   }
 }
 

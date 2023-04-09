@@ -9,7 +9,8 @@ var secondsPerTickInput = document.getElementById('tick-length-field');
 function wireControls({
   onStart,
   onUndoDensity,
-  onUndoTempo,
+  onUndoLength,
+  onUndoOffset,
   onPieceLengthChange,
   onTickLengthChange,
   totalTicks,
@@ -20,21 +21,14 @@ function wireControls({
 
   select('#start-button').attr('disabled', null);
   on('#start-button', 'click', onStartClick);
-  on('#undo-density-button', 'click', onUndoDensityClick);
-  on('#undo-length-button', 'click', onUndoTempoClick);
+  on('#undo-density-button', 'click', onUndoDensity);
+  on('#undo-length-button', 'click', onUndoLength);
+  on('#undo-offset-button', 'click', onUndoOffset);
   on('#piece-length-field', 'change', onPieceLengthFieldChange);
   on('#tick-length-field', 'change', onTickLengthFieldChange);
 
   function onStartClick() {
     onStart();
-  }
-
-  function onUndoDensityClick() {
-    onUndoDensity();
-  }
-
-  function onUndoTempoClick() {
-    onUndoTempo();
   }
 
   function onPieceLengthFieldChange() {

@@ -4,7 +4,8 @@ import { timeNeededForEnvelopeDecay } from '../consts';
 export function ChordPlayer({ ctx, sampleBuffer }) {
   return { play };
 
-  function play({ rates, delays, currentTickLengthSeconds, grainLengths, tickIndex }) {
+  function play({ rates, delays, currentTickLengthSeconds, grainLengths, grainOffsets, tickIndex }) {
+    const loopStart = grainOffsets[tickIndex];
     var samplerChains = rates.map(rateToSamplerChain);
     samplerChains.forEach(
       connectLastToDest
@@ -14,8 +15,8 @@ export function ChordPlayer({ ctx, sampleBuffer }) {
     samplerChains.forEach((chain, i) => playSampler(chain[0], delays[i]));
 
     function playSampler(sampler, delay) {
-      const startTime = ctx.currentTime + delay;
-      sampler.play({ startTime, duration: currentTickLengthSeconds });
+      const startTime = ctx.currentTime +  delay;
+      sampler.play({ startTime, loopStart, duration: currentTickLengthSeconds });
     }
 
     function rateToSamplerChain(rate, i, rates) {
@@ -25,8 +26,8 @@ export function ChordPlayer({ ctx, sampleBuffer }) {
           sampleBuffer,
           playbackRate: rate,
           loop: true,
-          loopStart: 0,
-          loopEnd: grainLengths[tickIndex],
+          loopStart,
+          loopEnd: loopStart + grainLengths[tickIndex],
           timeNeededForEnvelopeDecay 
         }
       );
