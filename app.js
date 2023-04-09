@@ -14,10 +14,10 @@ import { ChordPlayer } from './updaters/chord-player';
 import { getChord } from './updaters/get-chord';
 import { RenderTimeControlGraph } from './renderers/render-time-control-graph';
 import { tonalityDiamondPitches } from './tonality-diamond';
-import { defaultTotalTicks, defaultSecondsPerTick, maxTickLength } from './consts';
+import { defaultTotalTicks, defaultSecondsPerTick } from './consts';
 import { Undoer } from './updaters/undoer';
 
-const minGrainLength = 0.001;
+const minGrainLength = 0.1;
 const maxGrainLength = 1.0;
 
 var randomId = RandomId();
