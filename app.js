@@ -134,6 +134,7 @@ async function followRoute({
       'trumpet-D2.wav',
       'gtr-e.wav',
       '398701__inspectorj__water-swirl-small-10.wav',
+      'pipeline-cover-sample.wav',
     ],
     localMode: true,
     onComplete,
