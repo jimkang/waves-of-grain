@@ -10,6 +10,7 @@ export function ChordPlayer({ ctx, sampleBuffer }) {
     currentTickLengthSeconds,
     grainLengths,
     grainOffsets,
+    durations,
     tickIndex,
   }) {
     const loopStart = grainOffsets[tickIndex];
@@ -26,7 +27,7 @@ export function ChordPlayer({ ctx, sampleBuffer }) {
       sampler.play({
         startTime,
         loopStart,
-        duration: currentTickLengthSeconds,
+        duration: durations[tickIndex], //currentTickLengthSeconds,
       });
     }
 

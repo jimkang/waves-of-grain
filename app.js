@@ -45,6 +45,8 @@ async function followRoute({
   maxGrainLength = 1.0,
   minGrainOffset = 0.0,
   maxGrainOffset = 1.0,
+  minDuration = 0.01,
+  maxDuration = 60.0,
   sampleIndex = 2,
 }) {
   if (!seed) {
@@ -57,6 +59,8 @@ async function followRoute({
   maxGrainLength = +maxGrainLength;
   minGrainOffset = +minGrainOffset;
   maxGrainOffset = +maxGrainOffset;
+  minDuration = +minDuration;
+  maxDuration = +maxDuration;
 
   var renderDensityCanvas = RenderTimeControlGraph({
     canvasId: 'density-canvas',
@@ -81,6 +85,14 @@ async function followRoute({
     onUpdateValue: callRenderOffsetCanvas,
     storageKey: 'offsetOverTimeArray',
   });
+  var renderDurationCanvas = RenderTimeControlGraph({
+    canvasId: 'duration-canvas',
+    lineColor: 'hsl(240, 60%, 40%)',
+  });
+  var durationUndoer = Undoer({
+    onUpdateValue: callRenderDurationCanvas,
+    storageKey: 'durationOverTimeArray',
+  });
 
   function callRenderDensityCanvas(newValue, undoer) {
     renderDensityCanvas({
@@ -104,6 +116,15 @@ async function followRoute({
       valueOverTimeArray: newValue,
       valueMin: minGrainOffset,
       valueMax: maxGrainOffset,
+      onChange: undoer.onChange,
+    });
+  }
+
+  function callRenderDurationCanvas(newValue, undoer) {
+    renderDurationCanvas({
+      valueOverTimeArray: newValue,
+      valueMin: minDuration,
+      valueMax: maxDuration,
       onChange: undoer.onChange,
     });
   }
@@ -159,12 +180,20 @@ async function followRoute({
     valueMax: maxGrainOffset,
     onChange: offsetUndoer.onChange,
   });
+  renderDurationCanvas({
+    valueOverTimeArray: durationUndoer.getCurrentValue(),
+    valueMin: minDuration,
+    valueMax: maxDuration,
+    onChange: durationUndoer.onChange,
+  });
 
   (function renderGraphRangeLabels() {
     select('.min-length').text(minGrainLength);
     select('.max-length').text(maxGrainLength);
     select('.min-offset').text(minGrainOffset);
     select('.max-offset').text(maxGrainOffset);
+    select('.min-duration').text(minDuration);
+    select('.max-duration').text(maxDuration);
   })();
 
   // TODO: Test non-locally.
@@ -176,6 +205,7 @@ async function followRoute({
       onUndoDensity: densityUndoer.onUndo,
       onUndoLength: lengthUndoer.onUndo,
       onUndoOffset: offsetUndoer.onUndo,
+      onUndoDuration: durationUndoer.onUndo,
       onPieceLengthChange,
       onTickLengthChange,
       totalTicks,
@@ -191,6 +221,7 @@ async function followRoute({
           currentTickLengthSeconds,
           grainLengths: lengthUndoer.getCurrentValue(),
           grainOffsets: offsetUndoer.getCurrentValue(),
+          durations: durationUndoer.getCurrentValue(),
           tickIndex: ticks,
         },
         getChord({
