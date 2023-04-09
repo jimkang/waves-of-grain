@@ -12,14 +12,17 @@ export function RenderTimeControlGraph({ canvasId, lineColor = 'green' }) {
   const height = +canvas.getAttribute('height');
   var x, y;
   var lastIndexFilled = 0;
-  var debouncedOnChange; 
+  var debouncedOnChange;
   var strokeTimeInEvents = 0;
 
   return renderTimeControlCanvas;
 
   function renderTimeControlCanvas({
-    valueOverTimeArray, valueMin = 1, valueMax, onChange,
-    maxEventCountForStroke = 50
+    valueOverTimeArray,
+    valueMin = 1,
+    valueMax,
+    onChange,
+    maxEventCountForStroke = 50,
   }) {
     theValueOverTimeArray = valueOverTimeArray;
     debouncedOnChange = debounce(onChange, 300);
@@ -35,7 +38,9 @@ export function RenderTimeControlGraph({ canvasId, lineColor = 'green' }) {
       canvas.addEventListener('touchcancel', onMouseUp);
       window.addEventListener('touchmove', onMouseMove);
 
-      x = scaleLinear().domain([0, theValueOverTimeArray.length]).range([0, width]);
+      x = scaleLinear()
+        .domain([0, theValueOverTimeArray.length])
+        .range([0, width]);
       // In canvas, and GUIs in general, remember:
       // +y is down! If we want positive values to be
       // higher than negative ones, we must flip their
@@ -70,7 +75,7 @@ export function RenderTimeControlGraph({ canvasId, lineColor = 'green' }) {
       //console.log(theValueOverTimeArray);
       requestAnimationFrame(drawValues);
       if (strokeTimeInEvents >= maxEventCountForStroke) {
-      //console.log('Forcing stroke commit', strokeTimeInEvents);
+        //console.log('Forcing stroke commit', strokeTimeInEvents);
         debouncedOnChange(theValueOverTimeArray.slice());
         strokeTimeInEvents = 0;
       }
@@ -80,9 +85,16 @@ export function RenderTimeControlGraph({ canvasId, lineColor = 'green' }) {
     function fillToPoint(index, val) {
       const anchorVal = theValueOverTimeArray[lastIndexFilled];
       const fillDirection = index > lastIndexFilled ? 1 : -1;
-      for (let interpIndex = lastIndexFilled; interpIndex !== index; interpIndex += fillDirection) {
-      // This can be something fancier than linear, if it helps.
-        const interpVal = anchorVal + (interpIndex - lastIndexFilled)/(index - lastIndexFilled) * (val - anchorVal);
+      for (
+        let interpIndex = lastIndexFilled;
+        interpIndex !== index;
+        interpIndex += fillDirection
+      ) {
+        // This can be something fancier than linear, if it helps.
+        const interpVal =
+          anchorVal +
+          ((interpIndex - lastIndexFilled) / (index - lastIndexFilled)) *
+            (val - anchorVal);
         theValueOverTimeArray[interpIndex] = interpVal;
       }
       theValueOverTimeArray[index] = val;
@@ -101,7 +113,6 @@ export function RenderTimeControlGraph({ canvasId, lineColor = 'green' }) {
         canvasCtx.lineTo(xTime, height);
         canvasCtx.stroke();
       }
-
     }
   }
 }

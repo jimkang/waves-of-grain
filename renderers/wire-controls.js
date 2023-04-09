@@ -14,8 +14,8 @@ function wireControls({
   onPieceLengthChange,
   onTickLengthChange,
   totalTicks,
-  secondsPerTick }) {
-
+  secondsPerTick,
+}) {
   pieceLengthInput.value = totalTicks;
   secondsPerTickInput.value = secondsPerTick;
 

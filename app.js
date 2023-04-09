@@ -30,18 +30,35 @@ var sampleDownloader;
 var prob;
 var chordPlayer;
 
-var renderDensityCanvas = RenderTimeControlGraph({ canvasId: 'density-canvas' });
-var densityUndoer = Undoer({ onUpdateValue: callRenderDensityCanvas, storageKey: 'densityOverTimeArray' });
-var renderLengthCanvas = RenderTimeControlGraph({ canvasId: 'length-canvas', lineColor: 'hsl(10, 60%, 40%)' });
-var lengthUndoer = Undoer({ onUpdateValue: callRenderLengthCanvas, storageKey: 'lengthOverTimeArray' });
-var renderOffsetCanvas = RenderTimeControlGraph({ canvasId: 'offset-canvas', lineColor: 'hsl(240, 60%, 40%)' });
-var offsetUndoer = Undoer({ onUpdateValue: callRenderOffsetCanvas, storageKey: 'offsetOverTimeArray' });
+var renderDensityCanvas = RenderTimeControlGraph({
+  canvasId: 'density-canvas',
+});
+var densityUndoer = Undoer({
+  onUpdateValue: callRenderDensityCanvas,
+  storageKey: 'densityOverTimeArray',
+});
+var renderLengthCanvas = RenderTimeControlGraph({
+  canvasId: 'length-canvas',
+  lineColor: 'hsl(10, 60%, 40%)',
+});
+var lengthUndoer = Undoer({
+  onUpdateValue: callRenderLengthCanvas,
+  storageKey: 'lengthOverTimeArray',
+});
+var renderOffsetCanvas = RenderTimeControlGraph({
+  canvasId: 'offset-canvas',
+  lineColor: 'hsl(240, 60%, 40%)',
+});
+var offsetUndoer = Undoer({
+  onUpdateValue: callRenderOffsetCanvas,
+  storageKey: 'offsetOverTimeArray',
+});
 
 function callRenderDensityCanvas(newValue, undoer) {
   renderDensityCanvas({
     valueOverTimeArray: newValue,
     valueMax: tonalityDiamondPitches.length,
-    onChange: undoer.onChange
+    onChange: undoer.onChange,
   });
 }
 
@@ -50,7 +67,7 @@ function callRenderLengthCanvas(newValue, undoer) {
     valueOverTimeArray: newValue,
     valueMin: minGrainLength,
     valueMax: maxGrainLength,
-    onChange: undoer.onChange
+    onChange: undoer.onChange,
   });
 }
 
@@ -59,7 +76,7 @@ function callRenderOffsetCanvas(newValue, undoer) {
     valueOverTimeArray: newValue,
     valueMin: minGrainOffset,
     valueMax: maxGrainOffset,
-    onChange: undoer.onChange
+    onChange: undoer.onChange,
   });
 }
 (async function go() {
@@ -73,7 +90,11 @@ function callRenderOffsetCanvas(newValue, undoer) {
   routeState.routeFromHash();
 })();
 
-async function followRoute({ seed, totalTicks = defaultTotalTicks, secondsPerTick = defaultSecondsPerTick }) {
+async function followRoute({
+  seed,
+  totalTicks = defaultTotalTicks,
+  secondsPerTick = defaultSecondsPerTick,
+}) {
   secondsPerTick = +secondsPerTick;
 
   if (!seed) {
@@ -97,33 +118,33 @@ async function followRoute({ seed, totalTicks = defaultTotalTicks, secondsPerTic
     onTick,
     startTicks: 0,
     totalTicks,
-    getTickLength
-  }); 
+    getTickLength,
+  });
 
   sampleDownloader = SampleDownloader({
     sampleFiles: ['bagpipe-c.wav', 'flute-G4-edit.wav', 'trumpet-D2.wav'],
     localMode: true,
     onComplete,
-    handleError
+    handleError,
   });
   sampleDownloader.startDownloads();
 
   renderDensityCanvas({
     valueOverTimeArray: densityUndoer.getCurrentValue(),
     valueMax: tonalityDiamondPitches.length,
-    onChange: densityUndoer.onChange
+    onChange: densityUndoer.onChange,
   });
   renderLengthCanvas({
     valueOverTimeArray: lengthUndoer.getCurrentValue(),
     valueMin: minGrainLength,
-    valueMax: maxGrainLength, 
-    onChange: lengthUndoer.onChange
+    valueMax: maxGrainLength,
+    onChange: lengthUndoer.onChange,
   });
   renderOffsetCanvas({
     valueOverTimeArray: offsetUndoer.getCurrentValue(),
     valueMin: minGrainOffset,
-    valueMax: maxGrainOffset, 
-    onChange: offsetUndoer.onChange
+    valueMax: maxGrainOffset,
+    onChange: offsetUndoer.onChange,
   });
 
   // TODO: Test non-locally.
@@ -138,13 +159,28 @@ async function followRoute({ seed, totalTicks = defaultTotalTicks, secondsPerTic
       onPieceLengthChange,
       onTickLengthChange,
       totalTicks,
-      secondsPerTick
+      secondsPerTick,
     });
   }
 
   function onTick({ ticks, currentTickLengthSeconds }) {
-    console.log(ticks, currentTickLengthSeconds); 
-    chordPlayer.play(Object.assign({ currentTickLengthSeconds, grainLengths: lengthUndoer.getCurrentValue(), grainOffsets: offsetUndoer.getCurrentValue(), tickIndex: ticks }, getChord({ ticks, probable: prob, densityOverTimeArray: densityUndoer.getCurrentValue(),  totalTicks })));
+    console.log(ticks, currentTickLengthSeconds);
+    chordPlayer.play(
+      Object.assign(
+        {
+          currentTickLengthSeconds,
+          grainLengths: lengthUndoer.getCurrentValue(),
+          grainOffsets: offsetUndoer.getCurrentValue(),
+          tickIndex: ticks,
+        },
+        getChord({
+          ticks,
+          probable: prob,
+          densityOverTimeArray: densityUndoer.getCurrentValue(),
+          totalTicks,
+        })
+      )
+    );
   }
 
   function onPieceLengthChange(length) {
@@ -174,4 +210,3 @@ function renderVersion() {
 function onStart() {
   ticker.resume();
 }
-
