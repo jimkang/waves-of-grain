@@ -97,6 +97,7 @@ async function followRoute({
   function callRenderDensityCanvas(newValue, undoer) {
     renderDensityCanvas({
       valueOverTimeArray: newValue,
+      valueMin: 1,
       valueMax: tonalityDiamondPitches.length,
       onChange: undoer.onChange,
     });
@@ -159,6 +160,7 @@ async function followRoute({
       'sink-drips.wav',
       'sawtooth.wav',
       'sine.wav',
+      'vibraphone-swell-d4.wav',
     ],
     localMode: true,
     onComplete,
@@ -168,6 +170,7 @@ async function followRoute({
 
   renderDensityCanvas({
     valueOverTimeArray: densityUndoer.getCurrentValue(),
+    valueMin: 1,
     valueMax: tonalityDiamondPitches.length,
     onChange: densityUndoer.onChange,
   });
