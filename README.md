@@ -13,6 +13,6 @@ Once you have this source code on your computer, you can get it running by doing
   - Go to `http://0.0.0.0:7000` (or `http://localhost:7000`) in your browser. The web app will be running there.
     - It looks roughly like this when it's working:
     
-    ![Screenshot of the web app](meta/Screenshot 2023-04-09 at 20-10-55 Waves of Grain.png)
+    ![Screenshot 2023-04-09 at 20-10-55 Waves of Grain](https://user-images.githubusercontent.com/324298/230816054-f92f4ad4-f99e-4b5a-906e-f09742a29b79.png)
 
 It is also [on the web](https://jimkang.com/waves-of-grain/), though the UI is really rough; that's all I have time for right now. If you draw curves on all of the graphs and hit Start, it may make sound.
