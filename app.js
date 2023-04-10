@@ -87,7 +87,7 @@ async function followRoute({
   });
   var renderDurationCanvas = RenderTimeControlGraph({
     canvasId: 'duration-canvas',
-    lineColor: 'hsl(240, 60%, 40%)',
+    lineColor: 'hsl(300, 60%, 60%)',
   });
   var durationUndoer = Undoer({
     onUpdateValue: callRenderDurationCanvas,
@@ -156,6 +156,7 @@ async function followRoute({
       'gtr-e.wav',
       '398701__inspectorj__water-swirl-small-10.wav',
       'pipeline-cover-sample.wav',
+      'sink-drips.wav',
     ],
     localMode: true,
     onComplete,
