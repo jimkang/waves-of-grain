@@ -157,6 +157,8 @@ async function followRoute({
       '398701__inspectorj__water-swirl-small-10.wav',
       'pipeline-cover-sample.wav',
       'sink-drips.wav',
+      'sawtooth.wav',
+      'sine.wav',
     ],
     localMode: true,
     onComplete,
